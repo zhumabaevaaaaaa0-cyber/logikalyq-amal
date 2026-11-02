@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Логика майданы — 9-сынып</title>
+<style>
+:root{--bg:#090d2b;--panel:#151b49;--purple:#9d4edd;--cyan:#38d9ff;--green:#35e69a;--pink:#ff4fd8;--white:#f7f7ff}
+*{box-sizing:border-box}body{margin:0;font-family:Arial,sans-serif;color:var(--white);background:radial-gradient(circle at 15% 15%,#28206d 0,transparent 32%),radial-gradient(circle at 90% 80%,#142f75 0,transparent 35%),var(--bg);min-height:100vh;display:flex;align-items:center;justify-content:center;padding:22px}
+.wrap{width:min(960px,100%)}.top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:16px}
+.tag{border:1px solid var(--cyan);border-radius:999px;padding:8px 14px;color:var(--cyan);font-weight:bold;letter-spacing:.4px}
+h1{font-size:clamp(30px,5vw,54px);margin:8px 0;color:white;text-shadow:0 0 18px #8e54ff}
+.sub{color:#cbd2ff;margin:0 0 22px}.panel{background:linear-gradient(145deg,rgba(26,31,83,.96),rgba(11,18,53,.96));border:1px solid #6255cb;border-radius:24px;padding:clamp(20px,4vw,38px);box-shadow:0 0 30px #5737b966,inset 0 0 22px #3b56a322}
+.stats{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:20px}.stat{background:#0b1237;border:1px solid #3e5cba;border-radius:14px;padding:10px 15px;min-width:110px}.stat small{display:block;color:#aebcff;font-size:12px}.stat b{font-size:20px}
+.progress{height:9px;background:#252b61;border-radius:20px;overflow:hidden;margin:14px 0 25px}.bar{height:100%;width:0;background:linear-gradient(90deg,var(--purple),var(--cyan));transition:width .3s}
+.level{color:#7ceaff;font-weight:bold;margin-bottom:10px}.question{font-size:clamp(21px,3vw,30px);line-height:1.35;margin:8px 0 24px}
+.answers{display:grid;grid-template-columns:1fr 1fr;gap:12px}.answer{border:1px solid #6571ce;background:#171f58;color:white;border-radius:15px;padding:16px;text-align:left;font-size:17px;cursor:pointer;transition:.2s;min-height:62px}.answer:hover{border-color:var(--cyan);box-shadow:0 0 15px #38d9ff55;transform:translateY(-2px)}.answer:disabled{cursor:default;opacity:.9}.answer.correct{border-color:var(--green);background:#0d563f}.answer.wrong{border-color:#ff638e;background:#5b183b}
+.feedback{min-height:54px;margin:18px 0 8px;color:#dce4ff;line-height:1.4}.actions{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+button.primary{background:linear-gradient(90deg,#7b35dc,#277ee8);border:0;border-radius:999px;color:white;font-weight:bold;font-size:16px;padding:13px 24px;cursor:pointer;box-shadow:0 0 18px #7149ff66}button.primary:disabled{opacity:.35;cursor:default}
+.intro{text-align:center}.robot{font-size:70px;filter:drop-shadow(0 0 14px #42dfff)}.intro p{font-size:18px;line-height:1.6;color:#d9ddff;max-width:700px;margin:12px auto 24px}.rules{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin:18px 0 25px}.rules span{background:#101943;border:1px solid #4b5bb3;padding:9px 13px;border-radius:12px}
+.end{text-align:center}.score{font-size:60px;color:#76f5d0;font-weight:bold;text-shadow:0 0 20px #35e69a66}
+@media(max-width:600px){.answers{grid-template-columns:1fr}.top{align-items:flex-start}.stat{min-width:90px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top"><span class="tag">ИНФОРМАТИКА • 9-СЫНЫП</span><span class="tag">⚡ ИНТЕЛЛЕКТУАЛДЫ ОЙЫН</span></div>
+  <h1>🧠 ЛОГИКА МАЙДАНЫ</h1>
+  <p class="sub">Ойлан • Талда • Дұрыс жауап бер • Ұпай жина!</p>
+  <section class="panel intro" id="intro">
+    <div class="robot">🤖</div>
+    <h2>Логика әлеміне қош келдің!</h2>
+    <p>Үш деңгейден өт: <b>«Жылдам ой»</b>, <b>«Логикалық шабуыл»</b> және <b>«Миға шабуыл»</b>. Барлығы 10 сұрақ. Әр дұрыс жауап — 10 ұпай.</p>
+    <div class="rules"><span>🟢 1-деңгей: жеңіл</span><span>🔵 2-деңгей: орташа</span><span>🟣 3-деңгей: күрделі</span></div>
+    <button class="primary" onclick="startGame()">ОЙЫНДЫ БАСТАУ ▶</button>
+  </section>
+  <section class="panel" id="game" hidden>
+    <div class="stats">
+      <div class="stat"><small>ҰПАЙ</small><b id="score">0</b></div>
+      <div class="stat"><small>СҰРАҚ</small><b id="count">1 / 10</b></div>
+      <div class="stat"><small>ДЕҢГЕЙ</small><b id="levelStat">1</b></div>
+    </div>
+    <div class="progress"><div class="bar" id="bar"></div></div>
+    <div class="level" id="levelName">1-ДЕҢГЕЙ • ЖЫЛДАМ ОЙ</div>
+    <div class="question" id="question"></div>
+    <div class="answers" id="answers"></div>
+    <div class="feedback" id="feedback" aria-live="polite"></div>
+    <div class="actions"><span id="hint" class="sub">Дұрыс жауапты таңда.</span><button class="primary" id="next" onclick="nextQuestion()" disabled>КЕЛЕСІ СҰРАҚ →</button></div>
+  </section>
+  <section class="panel end" id="end" hidden>
+    <div class="robot">🏆</div><h2>Ойын аяқталды!</h2>
+    <div class="score" id="finalScore">0 / 100</div>
+    <h3 id="resultTitle"></h3><p id="resultText"></p>
+    <button class="primary" onclick="restart()">ҚАЙТА ОЙНАУ ↻</button>
+  </section>
+</div>
+<script>
+const questions=[
+ {level:1,name:"ЖЫЛДАМ ОЙ",q:"A = 1, B = 1. A AND B мәні қандай?",a:["0 — Жалған","1 — Ақиқат","Анықталмайды","2"],c:1,e:"AND амалы екі мән де 1 болғанда ғана 1 береді."},
+ {level:1,name:"ЖЫЛДАМ ОЙ",q:"A = 0, B = 1. A OR B мәні қандай?",a:["0 — Жалған","1 — Ақиқат","2","Анықталмайды"],c:1,e:"OR амалы кемінде бір мән 1 болса, 1 береді."},
+ {level:1,name:"ЖЫЛДАМ ОЙ",q:"A = 1 болса, NOT A мәні қандай?",a:["1","0","Ақиқат","2"],c:1,e:"NOT бастапқы мәнді кері өзгертеді: 1 → 0."},
+ {level:2,name:"ЛОГИКАЛЫҚ ШАБУЫЛ",q:"A = 1, B = 0. (A AND B) OR 1 мәнін табыңыз.",a:["0","1","2","Анықталмайды"],c:1,e:"Алдымен 1 AND 0 = 0. Содан соң 0 OR 1 = 1."},
+ {level:2,name:"ЛОГИКАЛЫҚ ШАБУЫЛ",q:"Қай жағдайда A OR B нәтижесі 0 болады?",a:["A=1, B=0","A=0, B=1","A=1, B=1","A=0, B=0"],c:3,e:"OR нәтижесі тек екі операнд та 0 болғанда 0 болады."},
+ {level:2,name:"ЛОГИКАЛЫҚ ШАБУЫЛ",q:"A = 0, B = 1. NOT(A AND B) мәні қандай?",a:["0","1","2","Анықталмайды"],c:1,e:"A AND B = 0. NOT 0 = 1."},
+ {level:3,name:"МИҒА ШАБУЫЛ",q:"A=1, B=0, C=1. (A OR B) AND NOT C мәні қандай?",a:["0","1","2","Анықталмайды"],c:0,e:"A OR B = 1. NOT C = 0. 1 AND 0 = 0."},
+ {level:3,name:"МИҒА ШАБУЫЛ",q:"A=0, B=1, C=0. NOT(A AND B) OR C мәні қандай?",a:["0","1","2","Анықталмайды"],c:1,e:"A AND B = 0. NOT 0 = 1. 1 OR 0 = 1."},
+ {level:3,name:"МИҒА ШАБУЫЛ",q:"Компьютерге кіру үшін логин де, құпиясөз де дұрыс болуы керек. Қай амал қолданылады?",a:["OR — НЕМЕСЕ","NOT — ЕМЕС","AND — ЖӘНЕ","Ешқайсысы"],c:2,e:"Екі шарт та міндетті түрде орындалуы керек, сондықтан AND қолданылады."},
+ {level:3,name:"МИҒА ШАБУЫЛ",q:"A=1, B=0. NOT(A OR B) мәнін табыңыз.",a:["0","1","Ақиқат та, жалған да","Анықталмайды"],c:0,e:"A OR B = 1. NOT 1 = 0."}
+];
+let index=0,score=0,answered=false;
+function startGame(){document.getElementById('intro').hidden=true;document.getElementById('end').hidden=true;document.getElementById('game').hidden=false;index=0;score=0;render()}
+function render(){
+ answered=false;let q=questions[index];
+ document.getElementById('score').textContent=score;
+ document.getElementById('count').textContent=(index+1)+" / "+questions.length;
+ document.getElementById('levelStat').textContent=q.level;
+ document.getElementById('bar').style.width=(index/questions.length*100)+"%";
+ document.getElementById('levelName').textContent=q.level+"-ДЕҢГЕЙ • "+q.name;
+ document.getElementById('question').textContent=(index+1)+". "+q.q;
+ document.getElementById('feedback').textContent="";
+ document.getElementById('next').disabled=true;
+ document.getElementById('next').textContent=index===questions.length-1?"НӘТИЖЕНІ КӨРУ 🏆":"КЕЛЕСІ СҰРАҚ →";
+ const box=document.getElementById('answers');box.innerHTML="";
+ q.a.forEach((v,i)=>{let b=document.createElement('button');b.className='answer';b.textContent=String.fromCharCode(65+i)+". "+v;b.onclick=()=>choose(i);box.appendChild(b)});
+}
+function choose(i){
+ if(answered)return;answered=true;let q=questions[index],buttons=[...document.querySelectorAll('.answer')];
+ buttons.forEach((b,j)=>{b.disabled=true;if(j===q.c)b.classList.add('correct');else if(j===i)b.classList.add('wrong')});
+ if(i===q.c){score+=10;document.getElementById('feedback').innerHTML="✅ <b>Дұрыс!</b> "+q.e}else{document.getElementById('feedback').innerHTML="❌ <b>Бұл жолы қате.</b> "+q.e}
+ document.getElementById('score').textContent=score;document.getElementById('next').disabled=false;
+}
+function nextQuestion(){if(!answered)return;if(index<questions.length-1){index++;render()}else finish()}
+function finish(){
+ document.getElementById('game').hidden=true;document.getElementById('end').hidden=false;
+ document.getElementById('finalScore').textContent=score+" / 100";
+ let title=score===100?"Керемет! Сен — логика шеберісің!":score>=70?"Жарайсың! Өте жақсы нәтиже!":score>=40?"Жақсы талпыныс! Тағы жаттық!":"Ештеңе етпейді! Қайталап көр!";
+ document.getElementById('resultTitle').textContent=title;
+ document.getElementById('resultText').textContent="Сен "+(score/10)+" сұраққа дұрыс жауап бердің. Логикалық амалдарды қайталап, тағы бір рет байқап көр!";
+}
+function restart(){document.getElementById('end').hidden=true;document.getElementById('intro').hidden=false}
+</script>
+</body>
+</html>
